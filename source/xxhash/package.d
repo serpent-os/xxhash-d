@@ -22,8 +22,140 @@
 
 module xxhash;
 
+import xxhash.binding;
+
+/**
+ * Templated XXH3 hash support
+ */
+public final class XXH3(uint B)
+{
+
+    /**
+     * Construct a new XXHash3 instance
+     */
+    this()
+    {
+        state = XXH3_createState();
+        reset();
+    }
+
+    ~this()
+    {
+        XXH3_freeState(state);
+        state = null;
+    }
+
+    /**
+     * Reset the internal state. This is done upon constrution.
+     */
+    void reset()
+    {
+        static if (BitWidth == 64)
+        {
+            XXH3_64bits_reset(state);
+        }
+        else static if (BitWidth == 128)
+        {
+            XXH3_128bits_reset(state);
+        }
+    }
+
+    /**
+     * Put some data to the digest
+     */
+    void put(scope const(ubyte)[] data...) @trusted nothrow @nogc
+    {
+        XXH_errorcode code;
+        static if (BitWidth == 64)
+        {
+            code = XXH3_64bits_update(state, data.ptr, data.length);
+        }
+        else static if (BitWidth == 128)
+        {
+            code = XXH3_128bits_update(state, data.ptr, data.length);
+        }
+    }
+
+    /**
+     * Return non-allocated finished hash digest
+     */
+    ubyte[BitWidth / 8] finish() @trusted
+    {
+        ubyte[BitWidth / 8] ret;
+        HashType xxh3_ret;
+        CanonType xxh3_canon;
+
+        static if (BitWidth == 64)
+        {
+            xxh3_ret = XXH3_64bits_digest(state);
+            XXH64_canonicalFromHash(&xxh3_canon, xxh3_ret);
+
+        }
+        else static if (BitWidth == 128)
+        {
+            xxh3_ret = XXH3_128bits_digest(state);
+            XXH128_canonicalFromHash(&xxh3_canon, xxh3_ret);
+        }
+
+        ret = xxh3_canon.digest;
+        reset();
+        return ret;
+    }
+
+private:
+
+    /* Store the bit width */
+    alias BitWidth = B;
+
+    /* Must be 64-bit or 128-bit only */
+    static assert(BitWidth == 64 || BitWidth == 128, "Unsupported BitWidth");
+
+    XXH3_state_t* state = null;
+
+    /* Define hash + canon types */
+    static if (BitWidth == 64)
+    {
+        alias HashType = XXH64_hash_t;
+        alias CanonType = XXH64_canonical_t;
+    }
+    else static if (BitWidth == 128)
+    {
+        alias HashType = XXH128_hash_t;
+        alias CanonType = XXH128_canonical_t;
+    }
+}
+
+/**
+ * 64-bit xxhash3
+ */
+alias XXH3_64 = XXH3!64;
+
+/**
+ * 128-bit xxhash3
+ */
+alias XXH3_128 = XXH3!128;
+
 @("A do nothing unit test")
 private unittest
 {
+    import std.stdio : File;
+    import std.mmfile : MmFile;
 
+    /* Ensure read of whole file */
+    auto ff = new MmFile(File("README.md", "rb"));
+    auto fc = cast(ubyte[]) ff[0 .. $];
+
+    auto t = new XXH3_64;
+    t.put(fc);
+
+    import std.stdio : writeln;
+    import std.digest : toHexString, LetterCase;
+
+    auto dg = t.finish();
+    writeln(toHexString!(LetterCase.lower)(dg));
+
+    auto t2 = new XXH3_128;
+    t2.put(fc);
+    auto dg2 = t2.finish();
+    writeln(toHexString!(LetterCase.lower)(dg2));
 }
