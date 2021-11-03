@@ -23,6 +23,7 @@
 module xxhash;
 
 import xxhash.binding;
+import std.exception : enforce;
 
 /**
  * Templated XXH3 hash support
@@ -63,7 +64,7 @@ public final class XXH3(uint B)
     /**
      * Put some data to the digest
      */
-    void put(scope const(ubyte)[] data...) @trusted nothrow @nogc
+    void put(scope const(ubyte)[] data...) @trusted
     {
         XXH_errorcode code;
         static if (BitWidth == 64)
@@ -74,6 +75,8 @@ public final class XXH3(uint B)
         {
             code = XXH3_128bits_update(state, data.ptr, data.length);
         }
+
+        enforce(code == XXH_errorcode.ok, "XXH3.put(): Failed to put data");
     }
 
     /**
