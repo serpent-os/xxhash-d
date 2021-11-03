@@ -7,7 +7,7 @@
 	"license": "BSD-2-Clause",
 	"version": "0.8.0",
 	"name": "xxhash-d",
-	"targetType" : "none",
+	"targetType" : "library",
 	"libs-posix": [
 		"libxxhash"
 	]
