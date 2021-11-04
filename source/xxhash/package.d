@@ -165,6 +165,34 @@ private unittest
     writeln(toHexString!(LetterCase.lower)(dg2));
 }
 
+@("Test xxh3_64 against known hash sums")
+private unittest
+{
+    auto testFiles = ["test/1", "test/2", "test/3",];
+    auto knownSums = [
+        "f325b2538ce02916", "79057921817aa582", "925cd67fae0c24c6"
+    ];
+
+    foreach (i; 0 .. 3)
+    {
+        auto testFile = testFiles[i];
+        immutable auto knownHash = knownSums[i];
+
+        auto helper = new XXH3_64();
+
+        immutable auto mmapHash = computeXXH3_64(helper, testFile, 4 * 1024 * 1024, true);
+
+        immutable readHash = computeXXH3_64(helper, testFile, 4 * 1024 * 1024, false);
+        immutable mmapHash1 = computeXXH3_64(helper, testFile, 3, true);
+        immutable readHash1 = computeXXH3_64(helper, testFile, 3, true);
+
+        assert(mmapHash == knownHash, "Invalid mmap hash");
+        assert(readHash == knownHash, "Invalid read hash");
+        assert(mmapHash1 == knownHash, "Invalid mmap hash with block size 3");
+        assert(readHash1 == knownHash, "Invalid read hash with block size 3");
+    }
+}
+
 @("Test xxh3_128 against known hash sums")
 private unittest
 {
