@@ -28,14 +28,14 @@ import std.algorithm : each;
 import std.range : chunks;
 import std.digest : toHexString, LetterCase;
 
-public import xxhash : XXH3_128;
+public import xxhash : XXH3, XXH3_64, XXH3_128;
 
 /**
- * Factory function to compute an xxh3_128 checksum for the given path, optionally
+ * Factory function to compute an xxh3 checksum for the given path, optionally
  * using mmap (ideal for files larger than 16kib) and a specific chunk size. We
  * recommend using a 4mib (1024 * 1024 * 4) chunksize here.
  */
-string computeXXH3_128(XXH3_128 helper, in string path, uint chunkSize, bool useMmap = false)
+string computeXXH3(uint N)(XXH3!N helper, in string path, uint chunkSize, bool useMmap = false)
 {
     auto inp = File(path, "rb");
     MmFile mapped = null;
@@ -59,3 +59,6 @@ string computeXXH3_128(XXH3_128 helper, in string path, uint chunkSize, bool use
 
     return toHexString!(LetterCase.lower)(helper.finish()).dup;
 }
+
+public alias computeXXH3_64 = computeXXH3!64;
+public alias computeXXH3_128 = computeXXH3!128;
