@@ -25,6 +25,8 @@ module xxhash;
 import xxhash.binding;
 import std.exception : enforce;
 
+public import xxhash.util;
+
 /**
  * Templated XXH3 hash support
  */
@@ -161,4 +163,32 @@ private unittest
     t2.put(fc);
     auto dg2 = t2.finish();
     writeln(toHexString!(LetterCase.lower)(dg2));
+}
+
+@("Test xxh3_128 against known hash sums")
+private unittest
+{
+    auto testFiles = ["test/1", "test/2", "test/3",];
+    auto knownSums = [
+        "ccf84d75d690ad5bee41734fa97559b6", "8968c3da2a40a7ec47b969804ae0077d",
+        "a718f2f41c707bc205af549a160f0538"
+    ];
+
+    foreach (i; 0 .. 3)
+    {
+        auto testFile = testFiles[i];
+        immutable auto knownHash = knownSums[i];
+
+        auto helper = new XXH3_128();
+
+        immutable auto mmapHash = computeXXH3_128(helper, testFile, 4 * 1024 * 1024, true);
+        immutable readHash = computeXXH3_128(helper, testFile, 4 * 1024 * 1024, false);
+        immutable mmapHash1 = computeXXH3_128(helper, testFile, 3, true);
+        immutable readHash1 = computeXXH3_128(helper, testFile, 3, true);
+
+        assert(mmapHash == knownHash, "Invalid mmap hash");
+        assert(readHash == knownHash, "Invalid read hash");
+        assert(mmapHash1 == knownHash, "Invalid mmap hash with block size 3");
+        assert(readHash1 == knownHash, "Invalid read hash with block size 3");
+    }
 }
