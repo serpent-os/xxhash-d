@@ -53,14 +53,18 @@ public final class XXH3(uint B)
      */
     void reset()
     {
+        XXH_errorcode code;
+
         static if (BitWidth == 64)
         {
-            XXH3_64bits_reset(state);
+            code = XXH3_64bits_reset(state);
         }
         else static if (BitWidth == 128)
         {
-            XXH3_128bits_reset(state);
+            code = XXH3_128bits_reset(state);
         }
+
+        enforce(code == XXH_errorcode.ok, "XXH3.reset(): Failed to reset state");
     }
 
     /**
