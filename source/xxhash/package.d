@@ -169,6 +169,8 @@ private unittest
     writeln(toHexString!(LetterCase.lower)(dg2));
 }
 
+import std.digest : toHexString, LetterCase;
+
 @("Test xxh3_64 against known hash sums")
 private unittest
 {
@@ -184,11 +186,11 @@ private unittest
 
         auto helper = new XXH3_64();
 
-        immutable auto mmapHash = computeXXH3_64(helper, testFile, 4 * 1024 * 1024, true);
+        immutable auto mmapHash = computeXXH3_hexdigest64(helper, testFile, 4 * 1024 * 1024, true);
 
-        immutable readHash = computeXXH3_64(helper, testFile, 4 * 1024 * 1024, false);
-        immutable mmapHash1 = computeXXH3_64(helper, testFile, 3, true);
-        immutable readHash1 = computeXXH3_64(helper, testFile, 3, true);
+        immutable readHash = computeXXH3_hexdigest64(helper, testFile, 4 * 1024 * 1024, false);
+        immutable mmapHash1 = computeXXH3_hexdigest64(helper, testFile, 3, true);
+        immutable readHash1 = computeXXH3_hexdigest64(helper, testFile, 3, true);
 
         assert(mmapHash == knownHash, "Invalid mmap hash");
         assert(readHash == knownHash, "Invalid read hash");
@@ -213,10 +215,10 @@ private unittest
 
         auto helper = new XXH3_128();
 
-        immutable auto mmapHash = computeXXH3_128(helper, testFile, 4 * 1024 * 1024, true);
-        immutable readHash = computeXXH3_128(helper, testFile, 4 * 1024 * 1024, false);
-        immutable mmapHash1 = computeXXH3_128(helper, testFile, 3, true);
-        immutable readHash1 = computeXXH3_128(helper, testFile, 3, true);
+        immutable auto mmapHash = computeXXH3_hexdigest128(helper, testFile, 4 * 1024 * 1024, true);
+        immutable readHash = computeXXH3_hexdigest128(helper, testFile, 4 * 1024 * 1024, false);
+        immutable mmapHash1 = computeXXH3_hexdigest128(helper, testFile, 3, true);
+        immutable readHash1 = computeXXH3_hexdigest128(helper, testFile, 3, true);
 
         assert(mmapHash == knownHash, "Invalid mmap hash");
         assert(readHash == knownHash, "Invalid read hash");
