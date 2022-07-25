@@ -5,7 +5,6 @@
 	"copyright": "Copyright © 2020-2021 Serpent OS Developers",
 	"description": "A binding to the xxhash library",
 	"license": "ZLib",
-	"version": "0.8.0",
 	"name": "xxhash-d",
 	"targetType" : "library",
 	"libs-posix": [
