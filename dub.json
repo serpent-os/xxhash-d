@@ -2,8 +2,8 @@
 	"authors": [
 		"Serpent OS Developers"
 	],
-	"copyright": "Copyright © 2020-2021 Serpent OS Developers",
-	"description": "A binding to the xxhash library",
+	"copyright": "Copyright © 2020-2022 Serpent OS Developers",
+	"description": "A direct C binding to the xxhash library",
 	"license": "ZLib",
 	"name": "xxhash-d",
 	"targetType" : "library",
