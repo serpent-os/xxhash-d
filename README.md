@@ -1,4 +1,8 @@
-### xxhash-d
+**This project is no longer active**
+
+---
+
+## xxhash-d
 
 A direct binding to the xxhash library, to reduce the need to replicate
 well implemented algorithms.
